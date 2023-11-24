@@ -198,7 +198,8 @@ public static class Program
             ListRestResources = provider.GetRequiredService<ListRestResources>(),
             Logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(Extractor)),
             ServiceDirectory = GetServiceDirectory(configuration),
-            ServiceUri = GetServiceUri(configuration, armEnvironment)
+            ServiceUri = GetServiceUri(configuration, armEnvironment),
+            IsProductGroupExportEnabled = GetIsProductGroupExportEnabledFlag(configuration)
         };
     }
 
@@ -297,6 +298,13 @@ public static class Program
 
         return new ServiceUri(uri);
     }
+
+     private static Boolean GetIsProductGroupExportEnabledFlag(IConfiguration configuration)
+    {
+           var IsProductGroupExportEnabled = configuration.GetValue("PRODUCT_GROUP_EXPORT_ENABLED");
+           return  Convert.ToBoolean(IsProductGroupExportEnabled);
+    }
+
 
     private record AuthenticatedHttpPipeline
     {

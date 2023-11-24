@@ -29,6 +29,7 @@ internal class Extractor : BackgroundService
         public IEnumerable<string>? TagNamesToExport { get; init; }
         public IEnumerable<string>? SubscriptionNamesToExport { get; init; }
         public IEnumerable<string>? PolicyFragmentNamesToExport { get; init; }
+        public required Boolean IsProductGroupExportEnabled { get; init; }
     }
     
     private readonly Parameters parameters;
@@ -84,6 +85,7 @@ internal class Extractor : BackgroundService
                              parameters.GetRestResource,
                              parameters.DownloadResource,
                              parameters.Logger,
+                             parameters.IsProductGroupExportEnabled,
                              cancellationToken);
     }
 }

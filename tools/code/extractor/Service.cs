@@ -1,5 +1,6 @@
 ﻿using common;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ internal static class Service
         GetRestResource getRestResource,
         DownloadResource downloadResource,
         ILogger logger,
+        Boolean isProductGroupExportEnabled,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Exporting named values...");
@@ -46,7 +48,8 @@ internal static class Service
         await Backend.ExportAll(serviceDirectory, serviceUri, listRestResources, getRestResource, logger, backendNamesToExport, cancellationToken);
 
         logger.LogInformation("Exporting products...");
-        await Product.ExportAll(serviceDirectory, serviceUri, apiNamesToExport, listRestResources, getRestResource, logger, productNamesToExport, cancellationToken);
+        await Product.ExportAll(serviceDirectory, serviceUri, apiNamesToExport, listRestResources, getRestResource, 
+        logger, isProductGroupExportEnabled, productNamesToExport,cancellationToken);
 
         logger.LogInformation("Exporting gateways...");
         await Gateway.ExportAll(serviceDirectory, serviceUri, apiNamesToExport, listRestResources, getRestResource, logger, cancellationToken);

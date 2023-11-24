@@ -10,11 +10,15 @@ namespace extractor;
 
 internal static class Product
 {
-    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, IEnumerable<string>? apiNamesToExport, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? productNamesToExport, CancellationToken cancellationToken)
+    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, IEnumerable<string>? apiNamesToExport, 
+    ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger,
+    Boolean isProductGroupExportEnabled, 
+    IEnumerable<string>? productNamesToExport, CancellationToken cancellationToken)
     {
         await List(serviceUri, listRestResources, cancellationToken)
                 .Where(productName => ShouldExport(productName, productNamesToExport))
-                .ForEachParallel(async productName => await Export(serviceDirectory, serviceUri, productName, apiNamesToExport, listRestResources, getRestResource, logger, cancellationToken),
+                .ForEachParallel(async productName => await Export(serviceDirectory, serviceUri, productName, apiNamesToExport, 
+                listRestResources, getRestResource, logger, isProductGroupExportEnabled, cancellationToken),
                                  cancellationToken);
     }
 
@@ -32,7 +36,10 @@ internal static class Product
                || productNamesToExport.Any(productNameToExport => productNameToExport.Equals(productName.ToString(), StringComparison.OrdinalIgnoreCase));
     }
 
-    private static async ValueTask Export(ServiceDirectory serviceDirectory, ServiceUri serviceUri, ProductName productName, IEnumerable<string>? apiNamesToExport, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, CancellationToken cancellationToken)
+    private static async ValueTask Export(ServiceDirectory serviceDirectory, ServiceUri serviceUri,
+     ProductName productName, IEnumerable<string>? apiNamesToExport, 
+     ListRestResources listRestResources, GetRestResource getRestResource, 
+     ILogger logger, Boolean isProductGroupExportEnabled, CancellationToken cancellationToken)
     {
         var productsDirectory = new ProductsDirectory(serviceDirectory);
         var productDirectory = new ProductDirectory(productName, productsDirectory);
@@ -43,7 +50,7 @@ internal static class Product
         await ExportInformationFile(productDirectory, productUri, productName, getRestResource, logger, cancellationToken);
         await ExportPolicies(productDirectory, productUri, listRestResources, getRestResource, logger, cancellationToken);
         await ExportApis(productDirectory, productUri, apiNamesToExport, listRestResources, logger, cancellationToken);
-        await ExportGroups(productDirectory, productUri, listRestResources, logger, cancellationToken);
+        await ExportGroups(isProductGroupExportEnabled,productDirectory, productUri, listRestResources, logger, cancellationToken);
         await ExportTags(productDirectory, productUri, listRestResources, logger, cancellationToken);
     }
 
@@ -69,9 +76,9 @@ internal static class Product
         await ProductApi.ExportAll(productDirectory, productUri, apiNamesToExport, listRestResources, logger, cancellationToken);
     }
 
-    private static async ValueTask ExportGroups(ProductDirectory productDirectory, ProductUri productUri, ListRestResources listRestResources, ILogger logger, CancellationToken cancellationToken)
+    private static async ValueTask ExportGroups(Boolean IsEnabled, ProductDirectory productDirectory, ProductUri productUri, ListRestResources listRestResources, ILogger logger, CancellationToken cancellationToken)
     {
-        await ProductGroup.ExportAll(productDirectory, productUri, listRestResources, logger, cancellationToken);
+        await ProductGroup.ExportAll(IsEnabled,productDirectory, productUri, listRestResources, logger, cancellationToken);
     }
 
     private static async ValueTask ExportTags(ProductDirectory productDirectory, ProductUri productUri, ListRestResources listRestResources, ILogger logger, CancellationToken cancellationToken)

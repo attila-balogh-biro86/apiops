@@ -13,7 +13,7 @@ namespace extractor;
 
 internal static class ProductGroup
 {
-    public static async ValueTask ExportAll(ProductDirectory productDirectory, ProductUri productUri, ListRestResources listRestResources, ILogger logger, CancellationToken cancellationToken)
+    public static async ValueTask ExportAll(Boolean IsProductGroupExportEnabled, ProductDirectory productDirectory, ProductUri productUri, ListRestResources listRestResources, ILogger logger, CancellationToken cancellationToken)
     {
         try
         {
@@ -23,7 +23,7 @@ internal static class ProductGroup
                                         .Select(SerializeProductGroup)
                                         .ToJsonArray(cancellationToken);
 
-            if (productGroups.Any())
+            if (productGroups.Any() && IsProductGroupExportEnabled)
             {
                 logger.LogInformation("Writing product groups file {filePath}...", productGroupsFile.Path);
                 await productGroupsFile.OverwriteWithJson(productGroups, cancellationToken);
