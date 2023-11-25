@@ -15,5 +15,9 @@ steps:
     command: publish 
     arguments: -r linux-x64 -p:PublishSingleFile=True --self-contained false -o $(Build.ArtifactStagingDirectory)
     projects: '$(Build.SourcesDirectory)/tools/code/extractor/*.csproj'
-    publishWebProjects: false
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'extractor'
+    publishLocation: 'Container'
   enabled: true
