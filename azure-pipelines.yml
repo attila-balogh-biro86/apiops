@@ -7,28 +7,13 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'
-
-variables:
-  solution: '**/*.extractor.csproj'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  vmImage: 'ubuntu-latest'
 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   inputs:
-    restoreSolution: '$(solution)'
-
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: publish 
+    arguments: -r linux-x64 -p:PublishSingleFile=True --self-contained false -o $(Build.ArtifactStagingDirectory)
+    projects: '$(Build.SourcesDirectory)/tools/code/extractor/*.csproj'
+    publishWebProjects: false
+  enabled: true
