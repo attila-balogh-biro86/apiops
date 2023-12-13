@@ -12,7 +12,7 @@ pool:
 parameters:
   - name: ARTIFACT_VERSION
     type: string
-    default: 4.10.4
+    default: 4.10.5
     displayName: The extractor component version for downloading from GitHub
 
 steps:
