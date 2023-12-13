@@ -9,6 +9,12 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+parameters:
+  - name: ARTIFACT_VERSION
+    type: string
+    default: 4.10.4
+    displayName: The extractor component version for downloading from GitHub
+
 steps:
 - task: DotNetCoreCLI@2
   inputs:
@@ -31,5 +37,5 @@ steps:
     vstsFeedPublish: 'ESS_API_Management/ESS_API_MANAGEMENT_API_OPS'
     vstsFeedPackagePublish: 'apiops-artifacts'
     packagePublishDescription: 'Compiled customized components of Azure ApiOps'
-    versionPublish: $(Build.BuildNumber)
+    versionPublish: ${{parameters.ARTIFACT_VERSION}}-$(Build.BuildNumber)
     versionOption: custom
