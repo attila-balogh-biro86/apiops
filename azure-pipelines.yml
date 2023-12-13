@@ -22,3 +22,14 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'extractor'
     publishLocation: 'Container'
+
+- task: UniversalPackages@0
+  displayName: Publish apiops executables to artifact management
+  inputs:
+    command: publish
+    publishDirectory: '$(Build.ArtifactStagingDirectory)'
+    vstsFeedPublish: 'ESS_API_Management/ESS_API_MANAGEMENT_API_OPS'
+    vstsFeedPackagePublish: 'apiops-artifacts'
+    packagePublishDescription: 'Compiled customized components of Azure ApiOps'
+    versionPublish: $(Build.BuildNumber)
+    versionOption: custom
