@@ -21,16 +21,26 @@ parameters:
 
 steps:
 - task: DotNetCoreCLI@2
+  displayName: Build ApiOps binary (extractor)
   inputs:
     command: publish 
     arguments: -r linux-x64 -p:PublishSingleFile=True --self-contained false -o $(Build.ArtifactStagingDirectory)
     projects: '$(Build.SourcesDirectory)/tools/code/extractor/*.csproj'
     publishWebProjects: false
 
+- task: DotNetCoreCLI@2
+  displayName: Build ApiOps binary (publisher)
+  inputs:
+    command: publish 
+    arguments: -r linux-x64 -p:PublishSingleFile=True --self-contained false -o $(Build.ArtifactStagingDirectory)
+    projects: '$(Build.SourcesDirectory)/tools/code/publisher/*.csproj'
+    publishWebProjects: false
+
 - task: PublishBuildArtifacts@1
+  displayName: Publish built ApiOps binaries to artifact staging directory
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'extractor'
+    ArtifactName: 'apiops'
     publishLocation: 'Container'
 
 - task: UniversalPackages@0
