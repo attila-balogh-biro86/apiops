@@ -12,8 +12,12 @@ pool:
 parameters:
   - name: ARTIFACT_VERSION
     type: string
-    default: 4.10.5
-    displayName: The extractor component version for downloading from GitHub
+    default: major
+    values:
+      - major
+      - minor
+      - patch
+    displayName: Select the release type. The versioning follows the semantic versioning scheme
 
 steps:
 - task: DotNetCoreCLI@2
@@ -37,5 +41,4 @@ steps:
     vstsFeedPublish: 'ESS_API_Management/ESS_API_MANAGEMENT_API_OPS'
     vstsFeedPackagePublish: 'apiops-artifacts'
     packagePublishDescription: 'Compiled customized components of Azure ApiOps'
-    versionPublish: ${{parameters.ARTIFACT_VERSION}}-$(Build.BuildNumber)
-    versionOption: custom
+    versionOption: ${{parameters.ARTIFACT_VERSION}}
