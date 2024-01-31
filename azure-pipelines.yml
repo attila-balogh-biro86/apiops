@@ -12,21 +12,35 @@ pool:
 parameters:
   - name: ARTIFACT_VERSION
     type: string
-    default: 4.10.5
-    displayName: The extractor component version for downloading from GitHub
+    default: major
+    values:
+      - major
+      - minor
+      - patch
+    displayName: Select the release type. The versioning follows the semantic versioning scheme
 
 steps:
 - task: DotNetCoreCLI@2
+  displayName: Build ApiOps binary (extractor)
   inputs:
     command: publish 
     arguments: -r linux-x64 -p:PublishSingleFile=True --self-contained false -o $(Build.ArtifactStagingDirectory)
     projects: '$(Build.SourcesDirectory)/tools/code/extractor/*.csproj'
     publishWebProjects: false
 
+- task: DotNetCoreCLI@2
+  displayName: Build ApiOps binary (publisher)
+  inputs:
+    command: publish 
+    arguments: -r linux-x64 -p:PublishSingleFile=True --self-contained false -o $(Build.ArtifactStagingDirectory)
+    projects: '$(Build.SourcesDirectory)/tools/code/publisher/*.csproj'
+    publishWebProjects: false
+
 - task: PublishBuildArtifacts@1
+  displayName: Publish built ApiOps binaries to artifact staging directory
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'extractor'
+    ArtifactName: 'apiops'
     publishLocation: 'Container'
 
 - task: UniversalPackages@0
@@ -37,5 +51,4 @@ steps:
     vstsFeedPublish: 'ESS_API_Management/ESS_API_MANAGEMENT_API_OPS'
     vstsFeedPackagePublish: 'apiops-artifacts'
     packagePublishDescription: 'Compiled customized components of Azure ApiOps'
-    versionPublish: ${{parameters.ARTIFACT_VERSION}}-$(Build.BuildNumber)
-    versionOption: custom
+    versionOption: ${{parameters.ARTIFACT_VERSION}}
