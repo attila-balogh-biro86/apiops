@@ -38,7 +38,7 @@ public static class Program
 
         var configuration = builder.Build();
         var jsonPath = configuration.TryGetValue("CONFIGURATION_JSON_PATH");
-
+        
         if (jsonPath is not null)
         {
             builder.AddJsonFile(jsonPath);
@@ -182,6 +182,7 @@ public static class Program
 
         return new Extractor.Parameters
         {
+            IsFilteringEnabled = GetFilterEnabledStatus(configuration),
             ApiNamesToExport = GetApiNamesToExport(configuration),
             LoggerNamesToExport = GetLoggerNamesToExport(configuration),
             DiagnosticNamesToExport = GetDiagnosticNamesToExport(configuration),
@@ -203,6 +204,11 @@ public static class Program
         };
     }
 
+    private static Boolean GetFilterEnabledStatus(IConfiguration configuration)
+    {
+        var jsonPath = configuration.TryGetValue("CONFIGURATION_JSON_PATH");
+        return jsonPath is not null;
+    }
     private static IEnumerable<string>? GetApiNamesToExport(IConfiguration configuration)
     {
         return configuration.TryGetSection("apiNames")

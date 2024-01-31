@@ -11,11 +11,11 @@ namespace extractor;
 
 internal static class Diagnostic
 {
-    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? diagnosticNamesToExport, CancellationToken cancellationToken)
+    public static async ValueTask ExportAll(Boolean IsFilteringEnabled, ServiceDirectory serviceDirectory, ServiceUri serviceUri, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? diagnosticNamesToExport, CancellationToken cancellationToken)
     {
         await List(serviceUri, listRestResources, cancellationToken)
                 // Filter out diagnostics that should not be exported
-                .Where(diagnosticName => ShouldExport(diagnosticName, diagnosticNamesToExport))
+                .Where(diagnosticName => ShouldExport(IsFilteringEnabled,diagnosticName, diagnosticNamesToExport))
                 .ForEachParallel(async diagnosticName => await Export(serviceDirectory, serviceUri, diagnosticName, getRestResource, logger, cancellationToken),
                                  cancellationToken);
     }
@@ -29,10 +29,9 @@ internal static class Diagnostic
                                     .Select(name => new DiagnosticName(name));
     }
 
-    private static bool ShouldExport(DiagnosticName diagnosticName, IEnumerable<string>? diagnosticNamesToExport)
+    private static bool ShouldExport(Boolean IsFilteringEnabled, DiagnosticName diagnosticName, IEnumerable<string>? diagnosticNamesToExport)
     {
-        return diagnosticNamesToExport is null
-               || diagnosticNamesToExport.Any(diagnosticNameToExport => diagnosticNameToExport.Equals(diagnosticName.ToString(), StringComparison.OrdinalIgnoreCase));
+        return Service.ShouldExport(IsFilteringEnabled,diagnosticName.ToString(),diagnosticNamesToExport);
     }
 
     private static async ValueTask Export(ServiceDirectory serviceDirectory, ServiceUri serviceUri, DiagnosticName diagnosticName, GetRestResource getRestResource, ILogger logger, CancellationToken cancellationToken)

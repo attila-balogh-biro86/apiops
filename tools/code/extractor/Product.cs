@@ -10,13 +10,13 @@ namespace extractor;
 
 internal static class Product
 {
-    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, IEnumerable<string>? apiNamesToExport, 
+    public static async ValueTask ExportAll(Boolean IsFilteringEnabled, ServiceDirectory serviceDirectory, ServiceUri serviceUri, IEnumerable<string>? apiNamesToExport, 
     ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger,
     Boolean isProductGroupExportEnabled, 
     IEnumerable<string>? productNamesToExport, CancellationToken cancellationToken)
     {
         await List(serviceUri, listRestResources, cancellationToken)
-                .Where(productName => ShouldExport(productName, productNamesToExport))
+                .Where(productName => ShouldExport(IsFilteringEnabled, productName, productNamesToExport))
                 .ForEachParallel(async productName => await Export(serviceDirectory, serviceUri, productName, apiNamesToExport, 
                 listRestResources, getRestResource, logger, isProductGroupExportEnabled, cancellationToken),
                                  cancellationToken);
@@ -30,10 +30,9 @@ internal static class Product
                                  .Select(name => new ProductName(name));
     }
 
-    private static bool ShouldExport(ProductName productName, IEnumerable<string>? productNamesToExport)
+    private static bool ShouldExport(Boolean IsFilteringEnabled, ProductName productName, IEnumerable<string>? productNamesToExport)
     {
-        return productNamesToExport is null
-               || productNamesToExport.Any(productNameToExport => productNameToExport.Equals(productName.ToString(), StringComparison.OrdinalIgnoreCase));
+        return Service.ShouldExport(IsFilteringEnabled,productName.ToString(),productNamesToExport);
     }
 
     private static async ValueTask Export(ServiceDirectory serviceDirectory, ServiceUri serviceUri,

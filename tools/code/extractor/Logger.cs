@@ -10,11 +10,11 @@ namespace extractor;
 
 internal static class Logger
 {
-    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? loggerNamesToExport, CancellationToken cancellationToken)
+    public static async ValueTask ExportAll(Boolean IsFilteringEnabled, ServiceDirectory serviceDirectory, ServiceUri serviceUri, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? loggerNamesToExport, CancellationToken cancellationToken)
     {
         await List(serviceUri, listRestResources, cancellationToken)
                 // Filter out apis that should not be exported
-                .Where(loggerName => ShouldExport(loggerName, loggerNamesToExport))
+                .Where(loggerName => ShouldExport(IsFilteringEnabled,loggerName, loggerNamesToExport))
                 .ForEachParallel(async loggerName => await Export(serviceDirectory, serviceUri, loggerName, getRestResource, logger, cancellationToken),
                                  cancellationToken);
     }
@@ -27,15 +27,20 @@ internal static class Logger
                                 .Select(name => new LoggerName(name));
     }
 
-    private static bool ShouldExport(LoggerName loggerName, IEnumerable<string>? loggerNamesToExport)
+    private static bool ShouldExport(Boolean IsFilteringEnabled, LoggerName loggerName, IEnumerable<string>? loggerNamesToExport)
     {
-        return loggerNamesToExport is null
-               || loggerNamesToExport.Any(loggerNameToExport => loggerNameToExport.Equals(loggerName.ToString(), StringComparison.OrdinalIgnoreCase)
+        if(!IsFilteringEnabled){
+            return true;
+        }
+        else {
+            return loggerNamesToExport is not null && loggerNamesToExport.Any(loggerNameToExport => loggerNameToExport.Equals(loggerName.ToString(), StringComparison.OrdinalIgnoreCase)
                                                           // Logger with revisions have the format 'loggerName;revision'. We split by semicolon to get the name.
                                                           || loggerNameToExport.Equals(loggerName.ToString()
                                                                                            .Split(';')
                                                                                            .First(),
                                                                                     StringComparison.OrdinalIgnoreCase));
+        }
+            
     }
 
     private static async ValueTask Export(ServiceDirectory serviceDirectory, ServiceUri serviceUri, LoggerName loggerName, GetRestResource getRestResource, ILogger logger, CancellationToken cancellationToken)

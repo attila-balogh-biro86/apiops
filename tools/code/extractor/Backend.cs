@@ -10,11 +10,11 @@ namespace extractor;
 
 internal static class Backend
 {
-    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? backendNamesToExport, CancellationToken cancellationToken)
+    public static async ValueTask ExportAll(Boolean IsFilteringEnabled, ServiceDirectory serviceDirectory, ServiceUri serviceUri, ListRestResources listRestResources, GetRestResource getRestResource, ILogger logger, IEnumerable<string>? backendNamesToExport, CancellationToken cancellationToken)
     {
         await List(serviceUri, listRestResources, cancellationToken)
                 // Filter out tags that should not be exported
-                .Where(backendName => ShouldExport(backendName, backendNamesToExport))
+                .Where(backendName => ShouldExport(IsFilteringEnabled,backendName, backendNamesToExport))
                 .ForEachParallel(async backendName => await Export(serviceDirectory, serviceUri, backendName, getRestResource, logger, cancellationToken),
                                  cancellationToken);
     }
@@ -27,10 +27,9 @@ internal static class Backend
                                  .Select(name => new BackendName(name));
     }
 
-    private static bool ShouldExport(BackendName backendName, IEnumerable<string>? backendNamesToExport)
+    private static bool ShouldExport(Boolean IsFilteringEnabled, BackendName backendName, IEnumerable<string>? backendNamesToExport)
     {
-        return backendNamesToExport is null
-               || backendNamesToExport.Any(backendNameToExport => backendNameToExport.Equals(backendName.ToString(), StringComparison.OrdinalIgnoreCase));
+        return Service.ShouldExport(IsFilteringEnabled,backendName.ToString(),backendNamesToExport);
     }
 
     private static async ValueTask Export(ServiceDirectory serviceDirectory, ServiceUri serviceUri, BackendName backendName, GetRestResource getRestResource, ILogger logger, CancellationToken cancellationToken)

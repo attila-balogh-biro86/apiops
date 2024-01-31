@@ -15,11 +15,11 @@ namespace extractor;
 
 internal static class Api
 {
-    public static async ValueTask ExportAll(ServiceDirectory serviceDirectory, ServiceUri serviceUri, DefaultApiSpecification defaultSpecification, IEnumerable<string>? apiNamesToExport, ListRestResources listRestResources, GetRestResource getRestResource, DownloadResource downloadResource, ILogger logger, CancellationToken cancellationToken)
+    public static async ValueTask ExportAll(Boolean IsFilteringEnabled,ServiceDirectory serviceDirectory, ServiceUri serviceUri, DefaultApiSpecification defaultSpecification, IEnumerable<string>? apiNamesToExport, ListRestResources listRestResources, GetRestResource getRestResource, DownloadResource downloadResource, ILogger logger, CancellationToken cancellationToken)
     {
         await List(serviceUri, listRestResources, cancellationToken)
                 // Filter out apis that should not be exported
-                .Where(apiName => ShouldExport(apiName, apiNamesToExport))
+                .Where(apiName => ShouldExport(IsFilteringEnabled,apiName, apiNamesToExport))
                 // Group APIs by version set (https://github.com/Azure/apiops/issues/316).
                 // We'll process each group in parallel, but each API within a group sequentially.
                 .SelectAwait(async apiName =>
@@ -42,15 +42,21 @@ internal static class Api
                              .Select(name => new ApiName(name));
     }
 
-    private static bool ShouldExport(ApiName apiName, IEnumerable<string>? apiNamesToExport)
+    private static bool ShouldExport(Boolean IsFilteringEnabled,ApiName apiName, IEnumerable<string>? apiNamesToExport)
     {
-        return apiNamesToExport is null
-               || apiNamesToExport.Any(apiNameToExport => apiNameToExport.Equals(apiName.ToString(), StringComparison.OrdinalIgnoreCase)
+         if(!IsFilteringEnabled){
+            return true;
+        }
+        else {
+            return apiNamesToExport is not null
+               && apiNamesToExport.Any(apiNameToExport => apiNameToExport.Equals(apiName.ToString(), StringComparison.OrdinalIgnoreCase)
                                                           // Apis with revisions have the format 'apiName;revision'. We split by semicolon to get the name.
                                                           || apiNameToExport.Equals(apiName.ToString()
                                                                                            .Split(';')
                                                                                            .First(),
                                                                                     StringComparison.OrdinalIgnoreCase));
+        }
+
     }
 
     private static async ValueTask<ApiModel> GetModel(ServiceUri serviceUri, ApiName apiName, GetRestResource getRestResource, CancellationToken cancellationToken)

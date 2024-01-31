@@ -365,3 +365,14 @@ appsettings.json
 # These files are your personal settings - don't commit them to source control.
 tools/code/.env.publisher
 tools/code/.env.extractor
+tools/code/extractor/api_management_output/policy.xml
+tools/code/extractor/api_management_output/apis/echo-api/apiInformation.json
+tools/code/extractor/api_management_output/apis/echo-api/specification.yaml
+tools/code/extractor/api_management_output/apis/echo-api/operations/create-resource/policy.xml
+tools/code/extractor/api_management_output/apis/echo-api/operations/retrieve-header-only/policy.xml
+tools/code/extractor/api_management_output/apis/echo-api/operations/retrieve-resource-cached/policy.xml
+tools/code/extractor/api_management_output/products/starter/apis.json
+tools/code/extractor/api_management_output/products/starter/policy.xml
+tools/code/extractor/api_management_output/products/starter/productInformation.json
+tools/code/extractor/api_management_output/products/unlimited/apis.json
+tools/code/extractor/api_management_output/products/unlimited/productInformation.json
