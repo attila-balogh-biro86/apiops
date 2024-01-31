@@ -37,11 +37,11 @@ public static class Program
         builder.AddUserSecrets(typeof(Program).Assembly);
 
         var configuration = builder.Build();
-        var yamlPath = configuration.TryGetValue("CONFIGURATION_YAML_PATH");
+        var jsonPath = configuration.TryGetValue("CONFIGURATION_JSON_PATH");
 
-        if (yamlPath is not null)
+        if (jsonPath is not null)
         {
-            builder.AddYamlFile(yamlPath);
+            builder.AddJsonFile(jsonPath);
         };
     }
 
