@@ -3,7 +3,7 @@ Kindly observe that even though the extractor and publisher binaries are not tig
 # Debug Instructions using Visual Studio Code Dev Container
 This option allows you to run the extractor and publisher binaries on your local machine inside a container. Thus you won't need to install any SDKs on your local machine.
 
-## Required Tools
+## Required Tools updated
 * Make sure you have [Visual Studio Code](https://code.visualstudio.com/download) installed.
 * Make sure you have the [VS Code Dev Container extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
 * Make sure you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed. 
