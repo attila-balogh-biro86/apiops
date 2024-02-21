@@ -223,6 +223,8 @@ jobs:
         generate_ado_pipeline_artifacts,
       ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
